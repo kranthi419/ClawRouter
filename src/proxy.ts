@@ -2501,6 +2501,7 @@ async function proxyRequest(
   // Estimate cost and check if wallet has sufficient balance
   // Skip if skipBalanceCheck is set (for testing) or if using free model
   let estimatedCostMicros: bigint | undefined;
+  let balanceFallbackNotice: string | undefined;
   const isFreeModel = modelId === FREE_MODEL;
 
   if (modelId && !options.skipBalanceCheck && !isFreeModel) {
@@ -2528,6 +2529,11 @@ async function proxyRequest(
         const parsed = JSON.parse(body.toString()) as Record<string, unknown>;
         parsed.model = FREE_MODEL;
         body = Buffer.from(JSON.stringify(parsed));
+
+        // Set notice to prepend to response so user knows about the fallback
+        balanceFallbackNotice = sufficiency.info.isEmpty
+          ? `> **⚠️ Wallet empty** — using free model. Fund your wallet to use ${originalModel}.\n\n`
+          : `> **⚠️ Insufficient balance** (${sufficiency.info.balanceUSD}) — using free model instead of ${originalModel}.\n\n`;
 
         // Notify about the fallback
         options.onLowBalance?.({
@@ -2960,6 +2966,18 @@ async function proxyRequest(
               safeWrite(res, roleData);
               responseChunks.push(Buffer.from(roleData));
 
+              // Chunk 1.5: balance fallback notice (tells user they got free model)
+              if (balanceFallbackNotice) {
+                const noticeChunk = {
+                  ...baseChunk,
+                  choices: [{ index, delta: { content: balanceFallbackNotice }, logprobs: null, finish_reason: null }],
+                };
+                const noticeData = `data: ${JSON.stringify(noticeChunk)}\n\n`;
+                safeWrite(res, noticeData);
+                responseChunks.push(Buffer.from(noticeData));
+                balanceFallbackNotice = undefined; // Only inject once
+              }
+
               // Chunk 2: content (single chunk with full content)
               if (content) {
                 const contentChunk = {
@@ -3056,26 +3074,43 @@ async function proxyRequest(
         }
       }
 
-      res.writeHead(upstream.status, responseHeaders);
-
+      // Collect full body for possible notice injection
+      const bodyParts: Buffer[] = [];
       if (upstream.body) {
         const reader = upstream.body.getReader();
         try {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            const chunk = Buffer.from(value);
-            safeWrite(res, chunk);
-            responseChunks.push(chunk);
+            bodyParts.push(Buffer.from(value));
           }
         } finally {
           reader.releaseLock();
         }
       }
 
-      res.end();
+      let responseBody = Buffer.concat(bodyParts);
 
-      const responseBody = Buffer.concat(responseChunks);
+      // Prepend balance fallback notice to response content
+      if (balanceFallbackNotice && responseBody.length > 0) {
+        try {
+          const parsed = JSON.parse(responseBody.toString()) as {
+            choices?: Array<{ message?: { content?: string } }>;
+          };
+          if (parsed.choices?.[0]?.message?.content !== undefined) {
+            parsed.choices[0].message.content = balanceFallbackNotice + parsed.choices[0].message.content;
+            responseBody = Buffer.from(JSON.stringify(parsed));
+          }
+        } catch { /* not JSON, skip notice */ }
+        balanceFallbackNotice = undefined;
+      }
+
+      // Update content-length header since body may have changed
+      responseHeaders["content-length"] = String(responseBody.length);
+      res.writeHead(upstream.status, responseHeaders);
+      safeWrite(res, responseBody);
+      responseChunks.push(responseBody);
+      res.end();
 
       // Cache for dedup (short-term, 30s)
       deduplicator.complete(dedupKey, {
