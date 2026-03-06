@@ -443,7 +443,6 @@ export const BLOCKRUN_MODELS: BlockRunModel[] = [
     contextWindow: 1000000,
     maxOutput: 65536,
     vision: true,
-    toolCalling: true,
   },
   {
     id: "google/gemini-2.5-pro",

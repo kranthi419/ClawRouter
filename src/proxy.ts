@@ -2687,7 +2687,11 @@ async function proxyRequest(
       // Filter out models that declare toolCalling but fail tool compliance in practice.
       // gemini-2.5-flash-lite refuses certain tool schemas (e.g. brave search) while
       // cheaper models like nvidia/gpt-oss-120b handle them fine.
-      const TOOL_NONCOMPLIANT_MODELS = ["google/gemini-2.5-flash-lite"];
+      const TOOL_NONCOMPLIANT_MODELS = [
+        "google/gemini-2.5-flash-lite",
+        "google/gemini-3-pro-preview",
+        "google/gemini-3.1-pro",
+      ];
       if (hasTools && toolFiltered.length > 1) {
         const compliant = toolFiltered.filter((m) => !TOOL_NONCOMPLIANT_MODELS.includes(m));
         if (compliant.length > 0 && compliant.length < toolFiltered.length) {
