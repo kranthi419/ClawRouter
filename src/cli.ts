@@ -270,6 +270,10 @@ async function main(): Promise<void> {
     } else {
       console.log(`[ClawRouter] Wallet balance: ${balance.balanceUSD}`);
     }
+    // Invalidate after display so the first real request always gets a fresh check.
+    // Prevents a flaky RPC at startup from caching a false $0.00 and triggering
+    // free-model fallback on the first request.
+    proxy.balanceMonitor.invalidate();
   } catch {
     console.log(`[ClawRouter] Wallet: ${displayAddress} (balance check pending)`);
   }
