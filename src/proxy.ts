@@ -2847,7 +2847,16 @@ async function proxyRequest(
 
           // Set routing decision so end-of-request logging uses correct tier
           // (no early logUsage here — the request will be logged after upstream call)
-          routingDecision = { model: freeModel, tier: "SIMPLE" as Tier, confidence: 1, method: "rules", reasoning: "free profile" };
+          routingDecision = {
+            model: freeModel,
+            tier: "SIMPLE" as Tier,
+            confidence: 1,
+            method: "rules",
+            reasoning: "free profile",
+            costEstimate: 0,
+            baselineCost: 0,
+            savings: 1,
+          };
         } else {
           // eco/auto/premium - use tier routing
           // Check for session persistence - use pinned model if available
