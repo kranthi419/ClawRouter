@@ -1042,19 +1042,21 @@ export const DEFAULT_ROUTING_CONFIG: RoutingConfig = {
   // Benchmark-tuned 2026-03-16: balancing quality (retention) + latency
   tiers: {
     SIMPLE: {
-      primary: "google/gemini-2.5-flash", // 1,238ms, 60% retention (best) — fast AND quality
+      primary: "google/gemini-2.5-flash", // 1,238ms, IQ 20, 60% retention (best) — fast AND quality
       fallback: [
-        "deepseek/deepseek-chat", // 1,431ms, 41% retention
-        "moonshot/kimi-k2.5", // 1,646ms, strong quality
+        "google/gemini-3-flash-preview", // 1,398ms, IQ 46 — smarter fallback
+        "deepseek/deepseek-chat", // 1,431ms, IQ 32, 41% retention
+        "moonshot/kimi-k2.5", // 1,646ms, IQ 47, strong quality
         "google/gemini-2.5-flash-lite", // 1,353ms, 1M context, ultra cheap ($0.10/$0.40)
         "xai/grok-4-fast-non-reasoning", // 1,143ms, $0.20/$0.50 — fast fallback
         "nvidia/gpt-oss-120b", // 1,252ms, FREE fallback
       ],
     },
     MEDIUM: {
-      primary: "moonshot/kimi-k2.5", // 1,646ms, $0.60/$3.00 — strong tool use, quality output
+      primary: "moonshot/kimi-k2.5", // 1,646ms, IQ 47, $0.60/$3.00 — strong tool use, quality output
       fallback: [
-        "deepseek/deepseek-chat", // 1,431ms, 41% retention
+        "google/gemini-3-flash-preview", // 1,398ms, IQ 46 — nearly same IQ, faster + cheaper
+        "deepseek/deepseek-chat", // 1,431ms, IQ 32, 41% retention
         "google/gemini-2.5-flash", // 1,238ms, 60% retention
         "google/gemini-2.5-flash-lite", // 1,353ms, 1M context ($0.10/$0.40)
         "xai/grok-4-1-fast-non-reasoning", // 1,244ms, fast fallback
@@ -1062,16 +1064,16 @@ export const DEFAULT_ROUTING_CONFIG: RoutingConfig = {
       ],
     },
     COMPLEX: {
-      primary: "google/gemini-3.1-pro", // 1,609ms — fast flagship quality
+      primary: "google/gemini-3.1-pro", // 1,609ms, IQ 57 — fast flagship quality
       fallback: [
-        "google/gemini-2.5-flash", // 1,238ms, cheap failsafe before expensive models
-        "google/gemini-2.5-flash-lite", // 1,353ms, 1M context, ultra-cheap failsafe ($0.10/$0.40)
-        "google/gemini-3-pro-preview", // 1,352ms
+        "google/gemini-3-pro-preview", // 1,352ms, IQ 48 — quality-first fallback
+        "google/gemini-3-flash-preview", // 1,398ms, IQ 46 — fast + smart
+        "xai/grok-4-0709", // 1,348ms, IQ 41
         "google/gemini-2.5-pro", // 1,294ms
-        "xai/grok-4-0709", // 1,348ms
-        "deepseek/deepseek-chat", // 1,431ms
-        "anthropic/claude-sonnet-4.6", // 2,110ms — quality fallback
-        "openai/gpt-5.4", // 6,213ms — slowest but highest quality
+        "anthropic/claude-sonnet-4.6", // 2,110ms, IQ 52 — quality fallback
+        "deepseek/deepseek-chat", // 1,431ms, IQ 32
+        "google/gemini-2.5-flash", // 1,238ms, IQ 20 — cheap last resort
+        "openai/gpt-5.4", // 6,213ms, IQ 57 — slowest but highest quality
       ],
     },
     REASONING: {
