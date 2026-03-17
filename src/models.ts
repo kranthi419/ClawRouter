@@ -71,6 +71,9 @@ export const MODEL_ALIASES: Record<string, string> = {
   grok: "xai/grok-3",
   "grok-fast": "xai/grok-4-fast-reasoning",
   "grok-code": "deepseek/deepseek-chat", // was grok-code-fast-1, delisted due to poor retention
+  // Delisted model redirects — full model IDs that were previously valid but removed
+  "xai/grok-code-fast-1": "deepseek/deepseek-chat", // delisted 2026-03-12, redirected to deepseek
+  "xai/grok-3-fast": "xai/grok-4-fast-reasoning", // delisted (too expensive), redirected to grok-4-fast
 
   // NVIDIA
   nvidia: "nvidia/gpt-oss-120b",
