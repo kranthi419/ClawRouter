@@ -56,6 +56,8 @@ OpenClaw → ClawRouter → blockrun.ai → GPT-4o / Opus / Gemini / ...
 
 ### 1. Token Compression — 7 Layers, Agent-Aware
 
+![Seven-layer agent-aware token compression — ClawRouter intercepts and compresses requests through 7 filters for 15–40% overall token reduction](assets/blockrun-clawrouter-7-layer-token-compression-openclaw.png)
+
 Agents are the worst offenders for context bloat. Tool call results are verbose. File reads return thousands of lines. Conversation history compounds with every turn.
 
 ClawRouter compresses every request through 7 layers before it hits the wire:
