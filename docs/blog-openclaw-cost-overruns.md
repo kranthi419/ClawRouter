@@ -44,6 +44,8 @@ OpenClaw is an excellent orchestration framework — session management, tool di
 
 ## ClawRouter: Built for Agentic Workloads
 
+![ClawRouter proxy manifold sits between OpenClaw and upstream APIs like GPT-4o, Claude Opus, and Gemini — cost control is a gateway concern](assets/blockrun-clawrouter-openclaw-agentic-proxy-architecture.png)
+
 ClawRouter is a local OpenAI-compatible proxy, purpose-built for how AI agents actually behave — not how simple chat clients do. It sits between OpenClaw and the upstream model APIs.
 
 ```
