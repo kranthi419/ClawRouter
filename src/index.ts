@@ -70,11 +70,80 @@ import {
 } from "node:fs";
 import { readTextFileSync } from "./fs-read.js";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { VERSION } from "./version.js";
 import { privateKeyToAccount } from "viem/accounts";
 import { getStats, formatStatsAscii, clearStats } from "./stats.js";
 import { buildPartnerTools, PARTNER_SERVICES } from "./partners/index.js";
+
+/**
+ * Install ClawRouter skills into OpenClaw's workspace skills directory.
+ *
+ * OpenClaw discovers skills by scanning {workspaceDir}/skills/ for SKILL.md files.
+ * Since there's no `api.registerSkill()`, we copy our bundled skills into the
+ * workspace so OpenClaw can find them. Each skill is namespaced under
+ * `skills/blockrun-{skillName}/` to avoid collisions with other plugins.
+ *
+ * Only copies if the skill is missing or the version has changed.
+ */
+function installSkillsToWorkspace(logger: { info: (msg: string) => void; warn: (msg: string) => void }) {
+  try {
+    // Resolve the package root: dist/index.js -> package root
+    const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+    const bundledSkillsDir = join(packageRoot, "skills");
+
+    if (!existsSync(bundledSkillsDir)) {
+      // Skills directory not bundled (dev mode or stripped package)
+      return;
+    }
+
+    const workspaceSkillsDir = join(homedir(), ".openclaw", "skills");
+    mkdirSync(workspaceSkillsDir, { recursive: true });
+
+    // Scan bundled skills: each subdirectory contains a SKILL.md
+    const entries = readdirSync(bundledSkillsDir, { withFileTypes: true });
+    let installed = 0;
+
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+
+      const skillName = entry.name;
+      const srcSkillFile = join(bundledSkillsDir, skillName, "SKILL.md");
+      if (!existsSync(srcSkillFile)) continue;
+
+      // Namespace: blockrun-{skillName} to avoid collisions
+      const destDir = join(workspaceSkillsDir, `blockrun-${skillName}`);
+      const destSkillFile = join(destDir, "SKILL.md");
+
+      // Check if update needed: compare content
+      let needsUpdate = true;
+      if (existsSync(destSkillFile)) {
+        try {
+          const srcContent = readTextFileSync(srcSkillFile);
+          const destContent = readTextFileSync(destSkillFile);
+          if (srcContent === destContent) needsUpdate = false;
+        } catch {
+          // Can't read — overwrite
+        }
+      }
+
+      if (needsUpdate) {
+        mkdirSync(destDir, { recursive: true });
+        copyFileSync(srcSkillFile, destSkillFile);
+        installed++;
+      }
+    }
+
+    if (installed > 0) {
+      logger.info(`Installed ${installed} skill(s) to ${workspaceSkillsDir}`);
+    }
+  } catch (err) {
+    logger.warn(
+      `Failed to install skills: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+}
 
 /**
  * Detect if we're running in shell completion mode.
@@ -982,6 +1051,10 @@ const plugin: OpenClawPluginDefinition = {
       api.logger.info("ClawRouter disabled (CLAWROUTER_DISABLED=true). Using default routing.");
       return;
     }
+
+    // Install skills into OpenClaw workspace so agents can discover them
+    // Must run before completion short-circuit so skills are available even on first install
+    installSkillsToWorkspace(api.logger);
 
     // Skip heavy initialization in completion mode — only completion script is needed
     // Logging to stdout during completion pollutes the script and causes zsh errors
