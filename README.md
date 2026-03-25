@@ -410,15 +410,15 @@ You're here. 55+ models, local smart routing, x402 USDC payments — the only st
 </td>
 <td width="50%">
 
-### 🦞 [SocialClaw](https://github.com/BlockRunAI/socialclaw)
+### 🤖 [BRCC](https://github.com/BlockRunAI/brcc)
 
-**Intelligence-as-a-function for X/Twitter**
+**BlockRun for Claude Code**
 
-The first X analytics an agent can call. One function call = one intelligence report. $0.08, not $49/month. No dashboard, no login, no subscription.
+Run Claude Code with 50+ models, no rate limits, no Anthropic account, no phone verification. Pay per request with USDC — your wallet is your identity.
 
-`pip install blockrun-llm[solana]`
+`curl -fsSL https://blockrun.ai/brcc-install | bash`
 
-[![GitHub](https://img.shields.io/github/stars/BlockRunAI/socialclaw?style=flat-square)](https://github.com/BlockRunAI/socialclaw)
+[![GitHub](https://img.shields.io/github/stars/BlockRunAI/brcc?style=flat-square)](https://github.com/BlockRunAI/brcc)
 
 </td>
 </tr>
