@@ -1,7 +1,7 @@
 /**
  * @blockrun/clawrouter
  *
- * Smart LLM router for OpenClaw — 30+ models, x402 micropayments, 78% cost savings.
+ * Smart LLM router for OpenClaw — 55+ models, x402 micropayments, 78% cost savings.
  * Routes each request to the cheapest model that can handle it.
  *
  * Usage:
@@ -1051,7 +1051,7 @@ async function createWalletCommand(): Promise<OpenClawPluginCommandDefinition> {
 const plugin: OpenClawPluginDefinition = {
   id: "clawrouter",
   name: "ClawRouter",
-  description: "Smart LLM router — 30+ models, x402 micropayments, 78% cost savings",
+  description: "Smart LLM router — 55+ models, x402 micropayments, 78% cost savings",
   version: VERSION,
 
   register(api: OpenClawPluginApi) {
@@ -1102,7 +1102,7 @@ const plugin: OpenClawPluginDefinition = {
       models: OPENCLAW_MODELS,
     };
 
-    api.logger.info("BlockRun provider registered (30+ models via x402)");
+    api.logger.info("BlockRun provider registered (55+ models via x402)");
 
     // Register partner API tools (Twitter/X lookup, etc.)
     try {

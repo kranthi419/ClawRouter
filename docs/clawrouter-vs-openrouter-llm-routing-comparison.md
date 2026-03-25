@@ -268,7 +268,7 @@ No silent drops. No stale catalog. Models are benchmarked for speed, quality, an
 | **Rate limits**     | Per-key, shared                  | Per-wallet, independent                        |
 | **Vision support**  | Images sometimes dropped         | Auto-detected, vision-only fallback            |
 | **Tool calling**    | Silent failures with some models | Flag-based filtering, guaranteed support       |
-| **Model catalog**   | Laggy, silent drops              | Curated 46+ models, redirect aliases           |
+| **Model catalog**   | Laggy, silent drops              | Curated 55+ models, redirect aliases           |
 | **Budget control**  | Monthly invoice                  | Per-session cap (`maxCostPerRun`)              |
 | **Setup**           | Create account, paste key        | Agent generates wallet, auto-configured        |
 | **Average cost**    | $25/M tokens (Opus direct)       | $2.05/M tokens (auto-routed) = **92% savings** |
