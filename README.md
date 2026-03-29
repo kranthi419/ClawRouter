@@ -36,6 +36,26 @@ Agents can only sign transactions.<br><br>
 
 ---
 
+## 15-Dimension Scoring System
+
+ClawRouter's routing engine classifies every request using a **rule-based multi-factor scorer** that runs 100% locally in under 1ms. Each prompt is evaluated across 15 weighted dimensions — from reasoning markers and code presence to token count and output format — producing a weighted score that maps to one of four routing tiers: `SIMPLE`, `MEDIUM`, `COMPLEX`, or `REASONING`.
+
+| Top Dimensions | Weight | What it detects |
+| -------------- | ------ | --------------- |
+| `reasoningMarkers` | **0.18** | Formal deductive / mathematical reasoning; 2+ matches force REASONING tier |
+| `codePresence` | **0.15** | Code blocks, programming constructs |
+| `multiStepPatterns` | **0.12** | Sequential instruction patterns (`first...then`, `step N`) |
+| `technicalTerms` | **0.10** | Systems / infrastructure / engineering terminology |
+| `tokenCount` | **0.08** | Context size — short prompts push toward SIMPLE, long toward COMPLEX |
+
+Confidence is calibrated via sigmoid; scores below **0.7 confidence** fall back to an LLM classifier. Special overrides (e.g. 100K+ token prompts, structured output detection, agentic task signals) can force tier upgrades independently of the weighted score.
+
+📄 **Full reference:** [docs/scoring-dimensions.md](docs/scoring-dimensions.md)
+
+> _Section added by [kranthi](https://github.com/kranthi419)_
+
+---
+
 ## Why ClawRouter exists
 
 Every other LLM router was built for **human developers** — create an account, get an API key, pick a model from a dashboard, pay with a credit card.
